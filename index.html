@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Meu Jogo da Memória</title>
+
+    <style>
+        body {
+            background-color: #315818;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        h1 {
+            color: #0A0A0A;
+            font-size: 50px;
+        }
+
+        p {
+            color: #CCFF66;
+            font-size: 20px;
+          
+        }
+
+        #vidas {
+    color: #ff4444;
+}
+
+        .tabuleiro {
+            display: grid;
+            grid-template-columns: repeat(4, 150px);
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+
+        .carta {
+            width: 150px;
+            height: 150px;
+            transition: transform 0.25s ease, background-color 0.25s ease;
+            background-color: #282224;
+            border: 3px solid #837E7C;
+            border-radius: 15px;
+            font-size: 40px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }   
+        .carta.encontrada {
+            background-color: #176b45;
+            border-color: #00ff99;
+            cursor: default;
+        }
+        .carta.virada {
+    transform: scale(1.05) rotate(2deg);
+}
+@keyframes embaralhar {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-20px) rotate(5deg);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+        #reiniciar {
+            background-color: #CCFF66;
+            color: #171923;
+            font-size: 18px;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+}
+    </style>
+</head>
+
+<body>
+
+    <h1>Prehistoric Memory</h1>
+
+    <p>Encontre os dinossauros iguais!</p>
+    <p id="contador">Pares encontrados: 0 de 4</p>
+    <p id="vidas">Vidas restantes: 4</p>
+    <p id="vitoria"></p>
+    <button id="reiniciar">Nova partida</button>
+
+    <div class="tabuleiro">
+
+    <div class="carta" data-dinosaur="T-Rex">?</div>
+    <div class="carta" data-dinosaur="Carnotauro">?</div>
+    <div class="carta" data-dinosaur="Espinossauro">?</div>
+    <div class="carta" data-dinosaur="Dilofossauro">?</div>
+
+    <div class="carta" data-dinosaur="T-Rex">?</div>
+    <div class="carta" data-dinosaur="Carnotauro">?</div>
+    <div class="carta" data-dinosaur="Espinossauro">?</div>
+    <div class="carta" data-dinosaur="Dilofossauro">?</div>
+
+</div>
+
+
+<script>
+
+    const cartas = document.querySelectorAll(".carta");
+    const tabuleiro = document.querySelector(".tabuleiro");
+
+    let primeiraCarta = null;
+    let segundaCarta = null;
+    let bloqueio = false;
+    let paresEncontrados = 0;
+    let temporizador = null;
+    let vidas = 4;
+    let jogoEncerrado = false;
+    function embaralharCartas() {
+
+    const cartasArray = Array.from(cartas);
+
+    cartasArray.sort(function() {
+        return Math.random() - 0.5;
+    });
+
+    cartasArray.forEach(function(carta) {
+        tabuleiro.appendChild(carta);
+    });
+
+}
+
+function reiniciarJogo() {
+
+     clearTimeout(temporizador);
+     temporizador = null;
+
+    primeiraCarta = null;
+    segundaCarta = null;
+    bloqueio = false;
+    paresEncontrados = 0;
+    vidas = 4;
+    jogoEncerrado = false;
+
+document.getElementById("vidas").textContent = "Vidas restantes: 4";
+
+document.getElementById("reiniciar").textContent = "Nova partida";
+
+    document.getElementById("contador").textContent = "Pares encontrados: 0 de 4";
+
+    document.getElementById("vitoria").textContent = "";
+
+    cartas.forEach(function(carta) {
+        carta.textContent = "?";
+        carta.classList.remove("encontrada");
+        carta.classList.remove("virada");
+    });
+
+    cartas.forEach(function(carta) {
+        carta.style.animation = "none";
+         carta.offsetWidth;
+         carta.style.animation = "embaralhar 0.5s ease";
+});
+
+    embaralharCartas();
+
+}
+
+    cartas.forEach(function(carta) {
+
+        carta.addEventListener("click", function()
+         {
+            if (jogoEncerrado === true) {
+    return;
+}
+
+            if (carta.classList.contains("encontrada")) {
+    return;
+}
+
+    if (bloqueio === true) {
+        return;
+    }
+
+    if (carta === primeiraCarta) {
+        return;
+    }
+
+           if (primeiraCarta === null) {
+
+            primeiraCarta = carta;
+            carta.textContent = carta.dataset.dinosaur;
+            carta.classList.add("virada");
+
+        } else if (segundaCarta === null) {
+
+            segundaCarta = carta;
+    carta.textContent = carta.dataset.dinosaur;
+    carta.classList.add("virada");
+
+    if (primeiraCarta.dataset.dinosaur === segundaCarta.dataset.dinosaur) {
+
+    alert("Par encontrado! Muito bem!");
+    paresEncontrados++;
+
+document.getElementById("contador").textContent = "Pares encontrados: " + paresEncontrados + " de 4";
+if (paresEncontrados === 4) {
+    document.getElementById("vitoria").textContent = "PARABÉNS! VOCÊ ENCONTROU TODOS OS DINOSSAUROS!";
+}
+    primeiraCarta.classList.add("encontrada");
+    segundaCarta.classList.add("encontrada");
+
+    primeiraCarta.classList.remove("virada");
+    segundaCarta.classList.remove("virada");
+    
+    primeiraCarta = null;
+    segundaCarta = null;
+   
+
+} else {
+
+     vidas--;
+
+    document.getElementById("vidas").textContent = "Vidas restantes: " + vidas;
+
+    if (vidas === 0) {
+    jogoEncerrado = true;
+}
+
+
+
+    bloqueio = true;
+
+
+    temporizador = setTimeout(function() {
+
+        primeiraCarta.textContent = "?";
+        segundaCarta.textContent = "?";
+
+        primeiraCarta.classList.remove("virada");
+        segundaCarta.classList.remove("virada");
+
+        primeiraCarta = null;
+        segundaCarta = null;
+
+        bloqueio = false;
+        temporizador = null;
+
+        if (vidas === 0) {
+    document.getElementById("vitoria").textContent = "VOCÊ PERDEU!";
+    document.getElementById("reiniciar").textContent = "Tentar novamente";
+}
+
+    }, 1000);
+
+}
+
+}
+
+    });
+
+});
+
+
+embaralharCartas();
+
+document.getElementById("reiniciar").addEventListener("click", reiniciarJogo);
+
+
+</script>
+
+</body>
+</html>
